@@ -37,6 +37,7 @@ setup(
         "Framework :: Django :: 2.0",
         "Framework :: Django :: 2.1",
         "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
@@ -49,4 +50,5 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     extras_require={"brotli": ["Brotli"]},
+    python_requires=">=3.5, <4",
 )
