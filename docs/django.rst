@@ -170,6 +170,21 @@ For apps on Heroku, you'd run this command
    heroku config:set DJANGO_STATIC_HOST=https://d4663kmspf1sqa.cloudfront.net
 
 
+Using compression algorithms other than gzip
+++++++++++++++++++++++++++++++++++++++++++++
+
+By default, CloudFront will discard any ``Accept-Encoding`` header browsers include
+in requests, unless the value of the header is gzip. If it is gzip, CloudFront will
+fetch the uncompressed file from the origin, compress it, and return it to the
+requesting browser.
+
+To get CloudFront to not do the compression itself as well as serve files compressed
+using other algorithms, such as Brotli, you must configure your distribution to
+`cache based on the Accept-Encoding header`__. You can do this in the ``Behaviours``
+tab of your distribution.
+
+.. __: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#compressed-content-custom-origin
+
 .. note::
 
     By default your entire site will be accessible via the CloudFront URL. It's
@@ -464,6 +479,26 @@ arguments upper-cased with a 'WHITENOISE\_' prefix.
     Note, this setting is only effective if the WhiteNoise storage backend is
     being used.
 
+.. attribute:: WHITENOISE_MANIFEST_STRICT
+
+    :default: ``True``
+
+    Set to ``False`` to prevent Django throwing an error if you reference a
+    static file which doesn't exist.
+
+    This works by setting the manifest_strict_ option on the underlying Django
+    storage instance, as described in the Django documentation:
+
+      If a file isn't found in the ``staticfiles.json`` manifest at runtime, a
+      ``ValueError`` is raised. This behavior can be disabled by subclassing
+      ``ManifestStaticFilesStorage`` and setting the ``manifest_strict`` attribute to
+      ``False`` -- nonexistent paths will remain unchanged.
+
+    Note, this setting is only effective if the WhiteNoise storage backend is
+    being used.
+
+.. _manifest_strict: https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/#django.contrib.staticfiles.storage.ManifestStaticFilesStorage.manifest_strict
+
 
 Additional Notes
 ----------------
@@ -635,10 +670,8 @@ find the file you can use
 
 which will show you all the paths which Django searches for the file "foo".
 
-If, for some reason, you want Django to silently ignore such errors you can subclass
-the storage backend and set the manifest_strict_ attribute to ``False``.
-
-.. _manifest_strict: https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/#django.contrib.staticfiles.storage.ManifestStaticFilesStorage.manifest_strict
+If, for some reason, you want Django to silently ignore such errors you can set
+``WHITENOISE_MANIFEST_STRICT`` to ``False``.
 
 
 Using WhiteNoise with Webpack / Browserify / $LATEST_JS_THING
