@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import contextlib
-import errno
 import gzip
 import os
 import re
@@ -8,9 +9,8 @@ import tempfile
 
 import pytest
 
-from whitenoise.compress import main as compress_main
 from whitenoise.compress import Compressor
-
+from whitenoise.compress import main as compress_main
 
 COMPRESSABLE_FILE = "application.css"
 TOO_SMALL_FILE = "too-small.css"
@@ -26,14 +26,13 @@ def files_dir():
         path = os.path.join(tmp, path.lstrip("/"))
         try:
             os.makedirs(os.path.dirname(path))
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+        except FileExistsError:
+            pass
         with open(path, "wb") as f:
             f.write(contents)
         timestamp = 1498579535
         os.utime(path, (timestamp, timestamp))
-    compress_main(tmp, quiet=True)
+    compress_main([tmp, "--quiet"])
     yield tmp
     shutil.rmtree(tmp)
 
