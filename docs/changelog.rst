@@ -1,6 +1,12 @@
 Changelog
 =========
 
+* Remove the behaviour of decoding byte strings passed for settings that take strings.
+  This seemed to be left around from supporting Python 2.
+  This change may be backwards incompatible for a small number of projects.
+
+* Document “hidden” feature of setting ``max_age`` to ``None`` to disable the ``Cache-Control`` header.
+
 6.2.0 (2022-06-05)
 ------------------
 
