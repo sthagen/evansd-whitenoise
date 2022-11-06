@@ -8,18 +8,15 @@ from posixpath import basename
 
 import pytest
 from django.conf import settings
-from django.contrib.staticfiles.storage import HashedFilesMixin, staticfiles_storage
+from django.contrib.staticfiles.storage import HashedFilesMixin
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.management import call_command
 from django.test.utils import override_settings
 from django.utils.functional import empty
 
-from whitenoise.storage import (
-    CompressedManifestStaticFilesStorage,
-    HelpfulExceptionMixin,
-    MissingFileError,
-)
-
 from .utils import Files
+from whitenoise.storage import CompressedManifestStaticFilesStorage
+from whitenoise.storage import MissingFileError
 
 
 @pytest.fixture()
@@ -69,7 +66,7 @@ def test_make_helpful_exception(_compressed_manifest_storage):
         TriggerException().hashed_name("/missing/file.png")
     except ValueError as e:
         exception = e
-    helpful_exception = HelpfulExceptionMixin().make_helpful_exception(
+    helpful_exception = CompressedManifestStaticFilesStorage().make_helpful_exception(
         exception, "styles/app.css"
     )
     assert isinstance(helpful_exception, MissingFileError)

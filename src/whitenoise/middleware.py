@@ -11,7 +11,8 @@ from django.http import FileResponse
 from django.urls import get_script_prefix
 
 from .base import WhiteNoise
-from .string_utils import decode_if_byte_string, ensure_leading_trailing_slash
+from .string_utils import decode_if_byte_string
+from .string_utils import ensure_leading_trailing_slash
 
 __all__ = ["WhiteNoiseMiddleware"]
 
@@ -31,10 +32,7 @@ class WhiteNoiseFileResponse(FileResponse):
 class WhiteNoiseMiddleware(WhiteNoise):
     """
     Wrap WhiteNoise to allow it to function as Django middleware, rather
-    than WSGI middleware
-
-    This functions as both old- and new-style middleware, so can be included in
-    either MIDDLEWARE or MIDDLEWARE_CLASSES.
+    than WSGI middleware.
     """
 
     def __init__(self, get_response=None, settings=settings):
@@ -118,18 +116,13 @@ class WhiteNoiseMiddleware(WhiteNoise):
             self.add_files_from_finders()
 
     def __call__(self, request):
-        response = self.process_request(request)
-        if response is None:
-            response = self.get_response(request)
-        return response
-
-    def process_request(self, request):
         if self.autorefresh:
             static_file = self.find_file(request.path_info)
         else:
             static_file = self.files.get(request.path_info)
         if static_file is not None:
             return self.serve(static_file, request)
+        return self.get_response(request)
 
     @staticmethod
     def serve(static_file, request):

@@ -9,12 +9,13 @@ from wsgiref.headers import Headers
 from wsgiref.util import FileWrapper
 
 from .media_types import MediaTypes
-from .responders import IsDirectoryError, MissingFileError, Redirect, StaticFile
-from .string_utils import (
-    decode_if_byte_string,
-    decode_path_info,
-    ensure_leading_trailing_slash,
-)
+from .responders import IsDirectoryError
+from .responders import MissingFileError
+from .responders import Redirect
+from .responders import StaticFile
+from .string_utils import decode_if_byte_string
+from .string_utils import decode_path_info
+from .string_utils import ensure_leading_trailing_slash
 
 
 class WhiteNoise:
@@ -52,9 +53,11 @@ class WhiteNoise:
         self.charset = charset
         self.add_headers_function = add_headers_function
         if index_file is True:
-            self.index_file = "index.html"
-        else:
+            self.index_file: str | None = "index.html"
+        elif isinstance(index_file, str):
             self.index_file = index_file
+        else:
+            self.index_file = None
 
         if immutable_file_test is not None:
             if not callable(immutable_file_test):
@@ -122,7 +125,7 @@ class WhiteNoise:
     def add_file_to_dictionary(self, url, path, stat_cache=None):
         if self.is_compressed_variant(path, stat_cache=stat_cache):
             return
-        if self.index_file and url.endswith("/" + self.index_file):
+        if self.index_file is not None and url.endswith("/" + self.index_file):
             index_url = url[: -len(self.index_file)]
             index_no_slash = index_url.rstrip("/")
             self.files[url] = self.redirect(url, index_url)
@@ -133,7 +136,7 @@ class WhiteNoise:
 
     def find_file(self, url):
         # Optimization: bail early if the URL can never match a file
-        if not self.index_file and url.endswith("/"):
+        if self.index_file is None and url.endswith("/"):
             return
         if not self.url_is_canonical(url):
             return
@@ -153,25 +156,23 @@ class WhiteNoise:
     def find_file_at_path(self, path, url):
         if self.is_compressed_variant(path):
             raise MissingFileError(path)
-        if self.index_file:
-            return self.find_file_at_path_with_indexes(path, url)
-        else:
-            return self.get_static_file(path, url)
 
-    def find_file_at_path_with_indexes(self, path, url):
-        if url.endswith("/"):
-            path = os.path.join(path, self.index_file)
-            return self.get_static_file(path, url)
-        elif url.endswith("/" + self.index_file):
-            if os.path.isfile(path):
-                return self.redirect(url, url[: -len(self.index_file)])
-        else:
-            try:
+        if self.index_file is not None:
+            if url.endswith("/"):
+                path = os.path.join(path, self.index_file)
                 return self.get_static_file(path, url)
-            except IsDirectoryError:
-                if os.path.isfile(os.path.join(path, self.index_file)):
-                    return self.redirect(url, url + "/")
-        raise MissingFileError(path)
+            elif url.endswith("/" + self.index_file):
+                if os.path.isfile(path):
+                    return self.redirect(url, url[: -len(self.index_file)])
+            else:
+                try:
+                    return self.get_static_file(path, url)
+                except IsDirectoryError:
+                    if os.path.isfile(os.path.join(path, self.index_file)):
+                        return self.redirect(url, url + "/")
+            raise MissingFileError(path)
+
+        return self.get_static_file(path, url)
 
     @staticmethod
     def url_is_canonical(url):

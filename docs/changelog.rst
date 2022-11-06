@@ -1,11 +1,18 @@
 Changelog
 =========
 
+* Add some video file extensions to be ignored during compression.
+  Since such files are already heavily compressed, further compression rarely helps.
+
+  Thanks to Jon Ribbens in `PR #431 <https://github.com/evansd/whitenoise/pull/431>`__.
+
 * Remove the behaviour of decoding byte strings passed for settings that take strings.
   This seemed to be left around from supporting Python 2.
   This change may be backwards incompatible for a small number of projects.
 
 * Document “hidden” feature of setting ``max_age`` to ``None`` to disable the ``Cache-Control`` header.
+
+* Drop support for working as old-style Django middleware, as support was `removed in Django 2.0 <https://docs.djangoproject.com/en/dev/releases/2.0/#features-removed-in-2-0>`__.
 
 6.2.0 (2022-06-05)
 ------------------
