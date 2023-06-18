@@ -14,7 +14,7 @@ charset-normalizer==3.1.0
     # via requests
 coverage==7.2.7
     # via -r requirements.in
-django==4.2.1
+django==4.2.2
     # via -r requirements.in
 exceptiongroup==1.1.1
     # via pytest
@@ -26,7 +26,7 @@ packaging==23.1
     # via pytest
 pluggy==1.0.0
     # via pytest
-pytest==7.3.1
+pytest==7.3.2
     # via
     #   -r requirements.in
     #   pytest-randomly
@@ -40,5 +40,5 @@ tomli==2.0.1
     # via pytest
 typing-extensions==4.6.3
     # via asgiref
-urllib3==2.0.2
+urllib3==2.0.3
     # via requests
