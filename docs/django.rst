@@ -83,9 +83,7 @@ caching.
 
 WhiteNoise comes with a storage backend which compresses your files and hashes
 them to unique names, so they can safely be cached forever. To use it, set it
-as your staticfiles storage backend in your settings file.
-
-On Django 4.2+:
+as your staticfiles storage backend in your settings file:
 
 .. code-block:: python
 
@@ -95,12 +93,6 @@ On Django 4.2+:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
-
-On older Django versions:
-
-.. code-block:: python
-
-   STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 This combines automatic compression with the caching behaviour provided by
 Django's ManifestStaticFilesStorage_ backend. If you want to apply compression
@@ -468,8 +460,10 @@ arguments upper-cased with a 'WHITENOISE\_' prefix.
     then ``WHITENOISE_STATIC_PREFIX`` will be ``/static/``.
 
     If your application is not running at the root of the domain and
-    ``FORCE_SCRIPT_NAME`` is set then this value will be removed from the
-    ``STATIC_URL`` path first to give the correct prefix.
+    ``FORCE_SCRIPT_NAME`` is set, then this value will be removed from the
+    ``STATIC_URL`` path first, to give the correct prefix. For example, if
+    ``STATIC_URL`` is ``'apple/static/`` and ``FORCE_SCRIPT_NAME`` is
+    ``'/apple'``, then ``WHITENOISE_STATIC_PREFIX`` will be ``/static/``.
 
     If your deployment is more complicated than this (for instance, if you are
     using a CDN which is doing path rewriting) then you may need to configure

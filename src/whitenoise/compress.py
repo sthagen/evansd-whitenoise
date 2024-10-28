@@ -4,6 +4,8 @@ import argparse
 import gzip
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 from io import BytesIO
 
 try:
@@ -77,7 +79,7 @@ class Compressor:
     def log(self, message):
         pass
 
-    def compress(self, path):
+    def _lazy_compress(self, path):
         with open(path, "rb") as f:
             stat_result = os.fstat(f.fileno())
             data = f.read()
@@ -93,6 +95,9 @@ class Compressor:
             compressed = self.compress_gzip(data)
             if self.is_compressed_effectively("Gzip", path, size, compressed):
                 yield self.write_data(path, compressed, ".gz", stat_result)
+
+    def compress(self, path):
+        return list(self._lazy_compress(path))
 
     @staticmethod
     def compress_gzip(data):
@@ -175,12 +180,20 @@ def main(argv=None):
         use_brotli=args.use_brotli,
         quiet=args.quiet,
     )
-    for dirpath, _dirs, files in os.walk(args.root):
-        for filename in files:
-            if compressor.should_compress(filename):
-                path = os.path.join(dirpath, filename)
-                for _compressed in compressor.compress(path):
-                    pass
+
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for dirpath, _dirs, files in os.walk(args.root):
+            for filename in files:
+                if compressor.should_compress(filename):
+                    futures.append(
+                        executor.submit(
+                            compressor.compress, os.path.join(dirpath, filename)
+                        )
+                    )
+        # Trigger any errors
+        for future in as_completed(futures):
+            future.result()
 
     return 0
 

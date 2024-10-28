@@ -2,7 +2,42 @@
 Changelog
 =========
 
+6.8.1 (2024-10-28)
+------------------
+
+* Raise any errors from threads in the ``whitenoise.compress`` command.
+
+  Regression in 6.8.0.
+  Thanks to Tom Grainger for the spotting this with a `comment on PR #484 <https://github.com/evansd/whitenoise/pull/484#discussion_r1818989096>`__.
+
+6.8.0 (2024-10-28)
+------------------
+
+* Drop Django 3.2 to 4.1 support.
+
+* Drop Python 3.8 support.
+
 * Support Python 3.13.
+
+* Fix a bug introduced in version 6.0.0 where ``Range`` requests could lead to database connection errors in other requests.
+
+  Thanks to Per Myren for the detailed investigation and fix in `PR #612 <https://github.com/evansd/whitenoise/pull/612>`__.
+
+* Use Django’s |FORCE_SCRIPT_NAME|__ setting correctly.
+  This reverts a change from version 5.3.0 that added a call to Django’s |get_script_prefix() method|__ outside of the request-response cycle.
+
+  .. |FORCE_SCRIPT_NAME| replace:: ``FORCE_SCRIPT_NAME``
+  __ https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-FORCE_SCRIPT_NAME
+
+  .. |get_script_prefix() method| replace:: ``get_script_prefix()`` method
+  __ https://docs.djangoproject.com/en/stable/ref/urlresolvers/#django.urls.get_script_prefix
+
+  Thanks to Sarah Boyce in `PR #486 <https://github.com/evansd/whitenoise/pull/486>`__.
+
+* Compress files using a thread pool.
+  This speeds up the compression step up to four times in benchmarks.
+
+  Thanks to Anthony Ricaud in `PR #484 <https://github.com/evansd/whitenoise/pull/484>`__.
 
 6.7.0 (2024-06-19)
 ------------------
